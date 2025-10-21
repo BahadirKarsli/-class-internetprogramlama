@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kullanıcı Paneli | The Library</title>
+<link rel="stylesheet" href="genel.css">
+<style>
+:root {
+  --primary: #7a0000;
+  --primary-dark: #330000;
+  --text: #f0f0f0;
+  --bg: #1e1e1e;
+  --card-bg: #2b2b2b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+ body {
+   font-family: 'Segoe UI', sans-serif;
+   background: var(--bg);
+   color: var(--text);
+   display: flex;
+   flex-direction: column;
+   min-height: 100vh;
+   font-size: 16px;
+ }
+ .main-wrapper {
+   display: flex;
+   flex: 1;
+ }
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, var(--primary-dark), var(--primary));
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  color: #fff;
+  box-shadow: 4px 0 16px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+ }
+.sidebar h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+  font-size: 1.1rem;
+}
+.nav-link:hover,
+.nav-link.active {
+  background: rgba(255,255,255,0.2);
+}
+.logout-btn {
+  margin-top: auto;
+  background: #fff;
+  color: var(--primary);
+  padding: 14px 16px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1.05rem;
+}
+.logout-btn:hover {background: #ffdddd;}
+ main {
+   flex: 1;
+   padding: 35px;
+   display: flex;
+   flex-direction: column;
+ }
+header {
+  background: #2e2e2e;
+  padding: 20px 30px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+header h2 {
+  color: #fff;
+  font-size: 1.8rem;
+}
+ .content-section {
+   display: none;
+   flex: 1;
+ }
+ .content-section.active {
+   display: flex;
+   flex-direction: column;
+ }
+.card {
+  background: var(--card-bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.card h3 {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+}
+ .list {
+   display: flex;
+   flex-direction: column;
+   gap: 16px;
+   flex: 1;
+   overflow-y: auto;
+   min-height: 0;
+ }
+.book {
+  background: #333;
+  padding: 20px 24px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+.book h4 {
+  color: #ffcccc;
+  margin: 0;
+  font-size: 1.2rem;
+}
+.book .meta {
+  color: #aaa;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+.btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.btn:hover {background: #990000;}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+form input, form textarea {
+  background: #444;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 1.05rem;
+}
+form input:focus, form textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+ footer {
+   text-align: center;
+   padding: 24px;
+   color: #777;
+   background: #1a1a1a;
+   border-top: 1px solid #333;
+   margin-top: auto;
+   font-size: 1rem;
+ }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open {display: flex;}
+.modal {
+  background: #2e2e2e;
+  color: #fff;
+  padding: 30px;
+  border-radius: 14px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h3 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+.modal p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.modal pre {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+/* Settings Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #444;
+  flex-wrap: wrap;
+}
+.settings-tab-btn {
+  background: transparent;
+  color: #aaa;
+  border: none;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  border-radius: 0;
+}
+.settings-tab-btn:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+}
+.settings-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: bold;
+}
+.settings-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.settings-content.active {
+  display: flex;
+  flex-direction: column;
+}
+.settings-content form {
+  max-width: 600px;
+}
+.settings-content h4 {
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 1.4rem;
+}
+.settings-content label {
+  font-size: 1.05rem;
+}
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+</style>
+</head>
+<body>
+ 
+ <div class="main-wrapper">
+ <!-- Sidebar -->
+ <aside class="sidebar">
+    <div class="logo">
+        <img src="logo.png" alt="The Library Logo"> 
+        <h1>The Library</h1>
+    </div>
+  <a href="#" class="nav-link active" data-section="books">📘 Kitaplarım</a>
+  <a href="#" class="nav-link" data-section="add">➕ Kitap Ekle</a>
+  <a href="#" class="nav-link" data-section="settings">⚙️ Kullanıcı Ayarları</a>
+  <a href="#" class="nav-link" data-section="history">🕓 Okuma Geçmişi</a>
+  <div class="logout-btn" id="logoutBtn">Çıkış Yap</div>
+</aside>
+
+<!-- Main Content -->
+<main>
+  <header>
+    <h2>Hoşgeldin, <span id="uname">...</span></h2>
+  </header>
+
+  <section id="books" class="content-section active">
+    <div class="card">
+      <h3>Kitaplarım</h3>
+      <input type="text" id="search" placeholder="Kitaplarımda ara...">
+      <div class="list" id="bookList"></div>
+    </div>
+  </section>
+
+   <section id="add" class="content-section">
+     <div class="card">
+       <h3>Kütüphaneden Kitap Ekle</h3>
+       <p style="color: #aaa; margin-bottom: 20px; font-size: 1.05rem;">Merkezi kütüphanede arama yapın ve kitapları listenize ekleyin.</p>
+       <input type="text" id="librarySearch" placeholder="Kütüphanede kitap ara (başlık, yazar, kategori)..." style="margin-bottom: 20px;">
+       <div class="list" id="libraryResults"></div>
+     </div>
+   </section>
+
+  <section id="settings" class="content-section">
+    <div class="card">
+      <h3>Kullanıcı Ayarları</h3>
+      
+      <!-- Settings Tabs -->
+      <div class="settings-tabs">
+        <button class="settings-tab-btn active" data-tab="password">🔒 Şifre Güncelle</button>
+        <button class="settings-tab-btn" data-tab="profile">👤 Profil Bilgileri</button>
+        <button class="settings-tab-btn" data-tab="notifications">🔔 Bildirim Tercihleri</button>
+        <button class="settings-tab-btn" data-tab="privacy">🛡️ Gizlilik</button>
+      </div>
+
+      <!-- Password Tab -->
+      <div class="settings-content active" id="password-tab">
+        <h4>Şifre Güncelleme</h4>
+        <form id="pwdForm">
+          <label for="oldPwd" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">Mevcut Şifre</label>
+          <input id="oldPwd" type="password" placeholder="Mevcut şifrenizi girin" required>
+          
+          <label for="newPwd" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">Yeni Şifre</label>
+          <input id="newPwd" type="password" placeholder="Yeni şifrenizi girin" required>
+          
+          <label for="newPwd2" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">Yeni Şifre (Tekrar)</label>
+          <input id="newPwd2" type="password" placeholder="Yeni şifrenizi tekrar girin" required>
+          
+          <button class="btn" type="submit">Şifreyi Güncelle</button>
+        </form>
+      </div>
+
+      <!-- Profile Tab -->
+      <div class="settings-content" id="profile-tab">
+        <h4>Profil Bilgileri</h4>
+        <form id="profileForm">
+          <label for="displayName" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">Görünen Ad</label>
+          <input id="displayName" type="text" placeholder="Ad Soyad">
+          
+          <label for="email" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">E-posta</label>
+          <input id="email" type="email" placeholder="ornek@email.com">
+          
+          <label for="bio" style="color: #aaa; margin-bottom: 8px; display: block; font-size: 1.05rem;">Biyografi</label>
+          <textarea id="bio" rows="4" placeholder="Kendinizden kısaca bahsedin..."></textarea>
+          
+          <button class="btn" type="submit">Profili Kaydet</button>
+        </form>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="settings-content" id="notifications-tab">
+        <h4>Bildirim Tercihleri</h4>
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="notifNewBooks" checked>
+            <span>Yeni kitap eklendiğinde bildir</span>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="notifAnnouncements" checked>
+            <span>Duyurular için bildirim gönder</span>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="notifReminders" checked>
+            <span>Okuma hatırlatıcıları</span>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="notifEmail">
+            <span>E-posta bildirimleri</span>
+          </label>
+          
+          <button class="btn" id="saveNotifications">Tercihleri Kaydet</button>
+        </div>
+      </div>
+
+      <!-- Privacy Tab -->
+      <div class="settings-content" id="privacy-tab">
+        <h4>Gizlilik Ayarları</h4>
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="profilePublic">
+            <span>Profilimi herkese açık yap</span>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="showReadingHistory">
+            <span>Okuma geçmişimi göster</span>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 1.05rem;">
+            <input type="checkbox" id="allowMessages" checked>
+            <span>Diğer kullanıcılardan mesaj almayı kabul et</span>
+          </label>
+          
+          <div style="margin-top: 24px; padding: 20px; background: rgba(255,0,0,0.1); border-radius: 10px; border-left: 4px solid #c00;">
+            <h5 style="color: #ff6b6b; margin-bottom: 12px; font-size: 1.2rem;">Tehlikeli Bölge</h5>
+            <p style="color: #aaa; font-size: 1rem; margin-bottom: 14px;">Bu işlemler geri alınamaz.</p>
+            <button class="btn" id="deleteAccount" style="background: #c00;">Hesabı Sil</button>
+          </div>
+          
+          <button class="btn" id="savePrivacy">Gizlilik Ayarlarını Kaydet</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="history" class="content-section">
+    <div class="card">
+      <h3>Okuma Geçmişi</h3>
+      <p style="color: #aaa; margin-bottom: 24px; font-size: 1.05rem;">Okuduğunuz kitapların geçmişini burada görebilirsiniz.</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 18px; flex: 1; overflow-y: auto;">
+        <!-- Placeholder content -->
+        <div style="padding: 30px; background: #333; border-radius: 12px; text-align: center;">
+          <div style="font-size: 5rem; margin-bottom: 20px;">📚</div>
+          <h4 style="color: #fff; margin-bottom: 14px; font-size: 1.4rem;">Henüz Okuma Geçmişiniz Yok</h4>
+          <p style="color: #aaa; font-size: 1.05rem; margin-bottom: 20px;">Kitap okumaya başladığınızda, okuma geçmişiniz burada görünecektir.</p>
+          <button class="btn" onclick="document.querySelector('[data-section=add]').click()">
+            Kütüphaneden Kitap Ekle
+          </button>
+        </div>
+        
+        <!-- Example history items (hidden by default, will be shown when there's actual data) -->
+        <div id="historyList" style="display: none;">
+          <!-- History items will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+ </main>
+ </div>
+ 
+ <footer>© 2025 The Library | Medeniyet Üniversitesi</footer>
+
+<div id="reader" class="modal-overlay">
+  <div class="modal">
+    <h3 id="readerTitle"></h3>
+    <p id="readerMeta"></p>
+    <pre id="readerContent"></pre>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<script>
+// Sidebar navigation
+document.querySelectorAll('.nav-link').forEach(link=>{
+  link.addEventListener('click', e=>{
+    e.preventDefault();
+    document.querySelectorAll('.nav-link').forEach(a=>a.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.content-section').forEach(sec=>sec.classList.remove('active'));
+    document.getElementById(link.dataset.section).classList.add('active');
+  });
+});
+
+// Settings tabs navigation
+document.querySelectorAll('.settings-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    e.preventDefault();
+    const targetTab = btn.dataset.tab;
+    
+    // Update tab buttons
+    document.querySelectorAll('.settings-tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.settings-content').forEach(content=>content.classList.remove('active'));
+    document.getElementById(targetTab + '-tab').classList.add('active');
+  });
+});
+
+// Database logic
+(function(){
+  const DB_KEY='msb_sqlite_v1'; 
+  const SS_SESSION='msb_session_v2';
+  const $=s=>document.querySelector(s); 
+  let SQL=null; 
+  let db=null; 
+  let session=null;
+  let currentUserId=null;
+
+  function getSession(){
+    try{
+      const raw=sessionStorage.getItem(SS_SESSION)||localStorage.getItem(SS_SESSION);
+      return raw?JSON.parse(raw):null;
+    }catch{
+      return null;
+    }
+  }
+
+  function saveDb(){
+    const data=db.export();
+    const b64=btoa(String.fromCharCode.apply(null,data));
+    localStorage.setItem(DB_KEY,b64);
+  }
+
+  function loadDb(){
+    const b64=localStorage.getItem(DB_KEY);
+    if(b64){
+      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      db=new SQL.Database(bytes);
+    }else{
+      db=new SQL.Database();
+    }
+    // Tabloları oluştur
+    db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS admins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS library_books (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        author TEXT NOT NULL,
+        year TEXT,
+        category TEXT,
+        created_at INTEGER
+      );
+      CREATE TABLE IF NOT EXISTS user_books (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        library_book_id INTEGER NOT NULL,
+        added_at INTEGER
+      );
+      CREATE TABLE IF NOT EXISTS announcements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at INTEGER
+      );
+    `);
+    saveDb();
+  }
+
+  function getUserId(username){
+    const stmt=db.prepare('SELECT id FROM users WHERE username=?');
+    stmt.bind([username]);
+    let userId=null;
+    if(stmt.step()){
+      userId=stmt.getAsObject().id;
+    }
+    stmt.free();
+    return userId;
+  }
+
+  function renderMyBooks(filter){
+    const list=$('#bookList'); 
+    list.innerHTML='';
+    
+    // Kullanıcının kitaplarını getir (library_books ile join)
+    const stmt=db.prepare(`
+      SELECT lb.id, lb.title, lb.author, lb.year, lb.category, ub.added_at
+      FROM user_books ub
+      JOIN library_books lb ON ub.library_book_id = lb.id
+      WHERE ub.user_id = ?
+      ORDER BY ub.added_at DESC
+    `);
+    stmt.bind([currentUserId]);
+    
+    const rows=[];
+    while(stmt.step()){
+      rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+
+    const q=(filter||'').toLowerCase();
+    const filtered=q?rows.filter(r=>
+      r.title.toLowerCase().includes(q)||r.author.toLowerCase().includes(q)
+    ):rows;
+
+    if(!filtered.length){
+      list.innerHTML='<p style="color:#aaa;">Henüz kitap eklemediniz. "Kitap Ekle" sekmesinden kütüphaneden kitap ekleyebilirsiniz.</p>';
+      return;
+    }
+
+    for(const r of filtered){
+      const div=document.createElement('div');
+      div.className='book';
+      div.innerHTML=`
+        <div>
+          <h4>${escapeHtml(r.title)}</h4>
+          <div class='meta'>${escapeHtml(r.author)}${r.year?' - '+r.year:''}${r.category?' | '+r.category:''}</div>
+        </div>
+        <button class='btn' data-id='${r.id}' onclick='openReader(${r.id})'>Oku</button>
+      `;
+      list.appendChild(div);
+    }
+  }
+
+  function searchLibrary(query){
+    const results=$('#libraryResults');
+    results.innerHTML='';
+
+    if(!query || query.trim().length < 2){
+      results.innerHTML='<p style="color:#aaa;">Arama yapmak için en az 2 karakter girin...</p>';
+      return;
+    }
+
+    const q=query.toLowerCase();
+    const stmt=db.prepare('SELECT * FROM library_books ORDER BY created_at DESC');
+    const allBooks=[];
+    while(stmt.step()){
+      allBooks.push(stmt.getAsObject());
+    }
+    stmt.free();
+
+    const filtered=allBooks.filter(b=>
+      b.title.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q) ||
+      (b.category && b.category.toLowerCase().includes(q))
+    );
+
+    if(!filtered.length){
+      results.innerHTML='<p style="color:#aaa;">Arama sonucu bulunamadı.</p>';
+      return;
+    }
+
+    // Kullanıcının zaten eklediği kitapları kontrol et
+    const userBooksStmt=db.prepare('SELECT library_book_id FROM user_books WHERE user_id=?');
+    userBooksStmt.bind([currentUserId]);
+    const userBookIds=new Set();
+    while(userBooksStmt.step()){
+      userBookIds.add(userBooksStmt.getAsObject().library_book_id);
+    }
+    userBooksStmt.free();
+
+    for(const b of filtered){
+      const alreadyAdded=userBookIds.has(b.id);
+      const div=document.createElement('div');
+      div.className='book';
+      div.innerHTML=`
+        <div>
+          <h4>${escapeHtml(b.title)}</h4>
+          <div class='meta'>${escapeHtml(b.author)}${b.year?' - '+b.year:''}${b.category?' | '+b.category:''}</div>
+        </div>
+        ${alreadyAdded 
+          ? '<span style="color:#4CAF50;font-weight:bold;">✓ Eklendi</span>' 
+          : `<button class='btn' onclick='addToMyBooks(${b.id})'>+ Ekle</button>`
+        }
+      `;
+      results.appendChild(div);
+    }
+  }
+
+  window.addToMyBooks=function(bookId){
+    // Zaten ekli mi kontrol et
+    let stmt=db.prepare('SELECT id FROM user_books WHERE user_id=? AND library_book_id=?');
+    stmt.bind([currentUserId,bookId]);
+    if(stmt.step()){
+      stmt.free();
+      alert('Bu kitap zaten listenizde!');
+      return;
+    }
+    stmt.free();
+
+    // Ekle
+    db.run('INSERT INTO user_books (user_id,library_book_id,added_at) VALUES (?,?,?)',
+      [currentUserId,bookId,Date.now()]);
+    saveDb();
+    
+    alert('Kitap listenize eklendi!');
+    searchLibrary($('#librarySearch').value); // Sonuçları güncelle
+    renderMyBooks(''); // Kitaplarımı güncelle
+  };
+
+  window.openReader=function(id){
+    const stmt=db.prepare('SELECT * FROM library_books WHERE id=?');
+    stmt.bind([id]);
+    if(stmt.step()){
+      const r=stmt.getAsObject();
+      $('#readerTitle').textContent=r.title;
+      $('#readerMeta').textContent=r.author+(r.year?' ('+r.year+')':'');
+      $('#readerContent').textContent='Kitap içeriği burada görüntülenecek...';
+      $('#reader').classList.add('open');
+    }
+    stmt.free();
+  };
+
+  function escapeHtml(s){
+    if(!s)return '';
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+
+  // Event handlers
+  $('#reader').addEventListener('click',e=>{
+    if(e.target.id==='reader')$('#reader').classList.remove('open');
+  });
+
+  $('#search').addEventListener('input',e=>{
+    renderMyBooks(e.target.value);
+  });
+
+  $('#librarySearch').addEventListener('input',e=>{
+    searchLibrary(e.target.value);
+  });
+
+  $('#logoutBtn').onclick=()=>{
+    sessionStorage.removeItem(SS_SESSION);
+    localStorage.removeItem(SS_SESSION);
+    window.location='login.html';
+  };
+
+  $('#pwdForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const oldPwd = $('#oldPwd').value;
+    const newPwd = $('#newPwd').value;
+    const newPwd2 = $('#newPwd2').value;
+    
+    if(newPwd !== newPwd2){
+      alert('Yeni şifreler eşleşmiyor!');
+      return;
+    }
+    
+    if(newPwd.length < 6){
+      alert('Yeni şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+    
+    // Şifre güncelleme işlemi (örnek)
+    alert('Şifreniz başarıyla güncellendi! (Bu bir demo işlemidir)');
+    e.target.reset();
+  });
+
+  // Profile form handler
+  const profileForm = document.getElementById('profileForm');
+  if(profileForm){
+    profileForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      alert('Profil bilgileriniz kaydedildi! (Bu bir demo işlemidir)');
+    });
+  }
+
+  // Notifications handler
+  const saveNotifBtn = document.getElementById('saveNotifications');
+  if(saveNotifBtn){
+    saveNotifBtn.addEventListener('click', ()=>{
+      alert('Bildirim tercihleriniz kaydedildi!');
+    });
+  }
+
+  // Privacy handler
+  const savePrivacyBtn = document.getElementById('savePrivacy');
+  if(savePrivacyBtn){
+    savePrivacyBtn.addEventListener('click', ()=>{
+      alert('Gizlilik ayarlarınız kaydedildi!');
+    });
+  }
+
+  // Delete account handler
+  const deleteAccBtn = document.getElementById('deleteAccount');
+  if(deleteAccBtn){
+    deleteAccBtn.addEventListener('click', ()=>{
+      const confirmed = confirm('Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!');
+      if(confirmed){
+        const doubleCheck = prompt('Devam etmek için "SİL" yazın:');
+        if(doubleCheck === 'SİL'){
+          alert('Hesabınız silinmiştir. (Bu bir demo işlemidir)');
+          // Gerçek uygulamada burada hesap silinir ve logout olur
+        }
+      }
+    });
+  };
+
+  // Initialize
+  window.initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f})
+    .then(SQLLib=>{
+      SQL=SQLLib; 
+      session=getSession(); 
+      if(!session || session.role !== 'user'){
+        window.location='login.html';
+        return;
+      }
+      $('#uname').textContent=session.username; 
+      loadDb(); 
+      currentUserId=getUserId(session.username);
+      if(!currentUserId){
+        alert('Kullanıcı ID bulunamadı!');
+        window.location='login.html';
+        return;
+      }
+      renderMyBooks('');
+      searchLibrary(''); // Başlangıçta tüm kitapları göster
+    })
+    .catch(err=>{
+      console.error('sql.js yüklenemedi',err);
+      alert('Veritabanı başlatılamadı.');
+    });
+})();
+</script>
+</body>
+</html>
